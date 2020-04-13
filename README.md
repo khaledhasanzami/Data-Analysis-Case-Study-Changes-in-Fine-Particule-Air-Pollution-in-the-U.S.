@@ -374,5 +374,18 @@ Now, lets have a quick view on data on 199 and 2012 by viewing the summary.
  -10.00    4.00    7.63    9.14   12.00  908.97   73133 
  ```
  So, we can see the meadiam has plummeted to 7.63 in 2012. It's a good news. Lets visualize some data.
- 
-                                                                                        
+```
+> boxplot(x0,x1)
+```
+![text](https://github.com/khaledhasanzami/Data-Analysis-Case-Study-Changes-in-Fine-Particule-Air-Pollution-in-the-U.S./blob/master/Rplot.png)
+
+The plot is kind of messy right now. Because data is kind of skewed. Lets fix this boxplot using log.
+```
+> boxplot(log10(x0),log10(x1))
+```
+
+![text](https://github.com/khaledhasanzami/Data-Analysis-Case-Study-Changes-in-Fine-Particule-Air-Pollution-in-the-U.S./blob/master/Rplot01.png)
+Here, we can say that, average levl has gone down but the spread has increased. 
+
+Data is coolected in a way that, a sucker is used to suck the air and a mask collects the dust in the air. Mask collected dust is counted to measesure how much data was in there. 
+
