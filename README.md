@@ -385,7 +385,61 @@ The plot is kind of messy right now. Because data is kind of skewed. Lets fix th
 ```
 
 ![text](https://github.com/khaledhasanzami/Data-Analysis-Case-Study-Changes-in-Fine-Particule-Air-Pollution-in-the-U.S./blob/master/Rplot01.png)
-Here, we can say that, average levl has gone down but the spread has increased. 
 
-Data is coolected in a way that, a sucker is used to suck the air and a mask collects the dust in the air. Mask collected dust is counted to measesure how much data was in there. 
+Here, we can say that, average level has gone down but the spread has increased. 
 
+The minimum value is negative thats kinda strange. Data is colected in a way that, a sucker is used to suck the air and a mask collects the dust in the air. Mask collected dust is counted to measesure how much data was in there. Dust is measured in mass thats in per cubic metre of air. Lets find out what it is and why is it negative and all!
+
+Lets look again to summary. 
+```
+> summary(x1)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+ -10.00    4.00    7.63    9.14   12.00  908.97   73133 
+ ```
+ Here minimum value is also negative. This is strange. Lets pluck out the values that are negative.
+ ```
+ > negative<- x1<0
+> str(negative)
+ logi [1:1304287] FALSE FALSE FALSE FALSE FALSE FALSE ...
+ ```
+ We will first create a negative variable which is a logical vetor and save logical values of x1 depending on the value is larger than 0 or nor in other words negative or not. 
+ Lets sum how many are there. 
+ ```
+ > sum(negative, na.rm = T)
+[1] 26474
+> mean(negative, na.rm = T)
+[1] 0.0215034
+```
+So the are 26474 values that are negative and they are about 0.2%. Actually not a large number of values. But lets look at it.
+
+Lets look at in which dates values came negative!
+```
+> date<- pm1$Date
+> str(date)
+ int [1:1304287] 20120101 20120104 20120107 20120110 20120113 20120116 20120119 20120122 20120125 20120128 ...
+> dates<- as.Date(as.character(dates), "%Y%m%d")
+Error in as.Date(as.character(dates), "%Y%m%d") : 
+  object 'dates' not found
+> dates<- as.Date(as.character(date), "%Y%m%d")
+> str(dates)
+ Date[1:1304287], format: "2012-01-01" "2012-01-04" "2012-01-07" "2012-01-10" "2012-01-13" "2012-01-16" ...
+ ```
+ We took the dates then converted it as date class because primarily they were in integer. 
+
+Lets build a histogram and see where there were measurements taken in the year.
+```
+> hist(dates, "month")
+```
+![text](https://github.com/khaledhasanzami/Data-Analysis-Case-Study-Changes-in-Fine-Particule-Air-Pollution-in-the-U.S./blob/master/Rplot02.png)
+
+Here, we can see measurements were higher in start of the year and lower at the end of the year. 
+
+Now, lets find out when the negative values were taken. 
+```
+> hist(dates[negative], "month")
+```
+![text](https://github.com/khaledhasanzami/Data-Analysis-Case-Study-Changes-in-Fine-Particule-Air-Pollution-in-the-U.S./blob/master/Rplot03.png)
+
+Here, the values are more in january and a spike in april then lower in december. So, as the negative values are higher with measurement and lower with low measurement. This may be a measurement error. As 2% of the data are only negative lets not waste more time on it. 
+
+Now lets get back. Lets take a region and take a monitor to look at changes. 
