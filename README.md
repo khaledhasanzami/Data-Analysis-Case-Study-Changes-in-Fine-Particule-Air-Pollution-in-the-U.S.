@@ -1,4 +1,4 @@
-# **Data Analysis Case Study: Changes in Fine Particule Air Pollution in the U.S.**
+# **Data Analysis Case Study: Changes in Fine Particulate Air Pollution in the U.S.**
 We are gonna walk through a nine step process of data analysis in analysing the dataset. This step by step process is gonna helpfull to any beginner in the data analysis cluster of study. The nine steps are:
 1. Formulate your question
 2. Read in your data
