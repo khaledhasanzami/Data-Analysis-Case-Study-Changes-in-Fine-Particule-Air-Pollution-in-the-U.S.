@@ -442,4 +442,115 @@ Now, lets find out when the negative values were taken.
 
 Here, the values are more in january and a spike in april then lower in december. So, as the negative values are higher with measurement and lower with low measurement. This may be a measurement error. As 2% of the data are only negative lets not waste more time on it. 
 
-Now lets get back. Lets take a region and take a monitor to look at changes. 
+Now lets get back. Lets take a region and take a monitor to look at changes. We will be looking into NewYork.
+```
+> site0<- unique(subset(pm0, State.Code== 36, c(County.Code, Site.ID)))
+> str(site0)
+'data.frame':	33 obs. of  2 variables:
+ $ County.Code: int  1 1 5 5 5 5 13 27 29 29 ...
+ $ Site.ID    : int  5 12 73 80 83 110 11 1004 2 5 ...
+ ```
+ We have substed the site id and county code for New York. State code for New York is 36. Then just looked at what have we just plucked out. Now lets do the same for 2012. 
+ ```
+ > site1<- unique(subset(pm1, State.Code== 36, c(County.Code, Site.ID)))
+> str(site1)
+'data.frame':	18 obs. of  2 variables:
+ $ County.Code: int  1 1 5 5 13 29 31 47 55 61 ...
+ $ Site.ID    : int  5 12 80 133 11 5 3 122 1007 79 ...
+ ```
+ The are data frames subsetted. We want just two variables containing just data. We can do it by subsetting separate comuns with data and paste it together. 
+ ```
+ > site0<- paste(site0[,1], site0[,2], sep= ".")
+> site1<- paste(site1[,1], site1[,2], sep= ".")
+> str(site0)
+ chr [1:33] "1.5" "1.12" "5.73" "5.80" "5.83" "5.110" "13.11" "27.1004" "29.2" "29.5" "29.1007" ...
+> str(site1)
+ chr [1:18] "1.5" "1.12" "5.80" "5.133" "13.11" "29.5" "31.3" "47.122" "55.1007" "61.79" "61.134" ...
+ ```
+ Lets see which monitor is in both 1999 and 2012.
+ ```
+ > both<- intersect(site0, site1)
+> both
+ [1] "1.5"     "1.12"    "5.80"    "13.11"   "29.5"    "31.3"    "63.2008" "67.1015" "85.55"   "101.3" 
+ ```
+ So, we can see there are ten monitor that are across the time period. Lets find out the commin monitor data for Ne York between 1999 and 2012.
+ ```
+ > pm0$county.site<- with(pm0, paste(County.Code, Site.ID, sep=".")) 
+> pm1$county.site<- with(pm1, paste(County.Code, Site.ID, sep=".")) 
+> cnt0<- subset(pm0, State.Code== 36 & county.site %in% both)
+> cnt1<- subset(pm1, State.Code== 36 & county.site %in% both)
+```
+Lets find out the number of observation in each of this data frame.
+```
+> sapply(split(cnt0, cnt0$county.site), nrow)
+   1.12     1.5   101.3   13.11    29.5    31.3    5.80 63.2008 67.1015   85.55 
+     61     122     152      61      61     183      61     122     122       7 
+> sapply(split(cnt1, cnt1$county.site), nrow)
+   1.12     1.5   101.3   13.11    29.5    31.3    5.80 63.2008 67.1015   85.55 
+     31      64      31      31      33      15      31      30      31      31 
+```
+Here we can see that, during 1999 county 1 site 12 had 61 observation wich plunged to 31 in 2012.
+
+Lets pick county number 63 and site 2008 and look at the PM value.
+```
+> pm1sub<- subset(pm1, State.Code== 36 & County.Code == 63& Site.ID== 2008)
+> pm0sub<- subset(pm0, State.Code== 36 & County.Code == 63& Site.ID== 2008)
+> dim(pm0sub)
+[1] 122  29
+> dim(pm1sub)
+[1] 30 29
+```
+Lets have some time series plots to look at the data. 
+```
+> dates1<- pm1sub$Date
+> x1sub<- pm1sub$Sample.Value
+> dates1<- as.Date(as.character(dates1), "%Y%m%d")
+> plot(dates1, x1sub)
+```
+![text](https://github.com/khaledhasanzami/Data-Analysis-Case-Study-Changes-in-Fine-Particule-Air-Pollution-in-the-U.S./blob/master/Rplot04.png)
+Lets do this for 1999 also.
+```
+> dates0<- pm0sub$Date
+> xsub<- pm0sub$Sample.Value
+> dates0<- as.Date(as.character(dates0), "%Y%m%d")
+> plot(dates0, xsub)
+```
+![text](https://github.com/khaledhasanzami/Data-Analysis-Case-Study-Changes-in-Fine-Particule-Air-Pollution-in-the-U.S./blob/master/Rplot05.png)
+
+Both plots are great but plots are for different years. Lets make a plot that put all the data in the same pannel. 
+```
+> par(mfrow = c(1,2), mar= c(4, 4, 2, 1))
+> abline(h= median(x1sub, na.rm=T))
+> range(xsub, x1sub, na.rm = T)
+[1]  3.0 40.1
+> rng<- range(xsub, x1sub, na.rm = T)
+> par(mfrow= c(1,2))
+> plot(dates0, xsub, pch= 20, ylim = rng)
+> abline(h=median(xsub, na.rm = T))
+> plot(dates1, x1sub, pch= 20, ylim = rng)
+> abline(h=median(x1sub, na.rm = T))
+```
+![text](https://github.com/khaledhasanzami/Data-Analysis-Case-Study-Changes-in-Fine-Particule-Air-Pollution-in-the-U.S./blob/master/Rplot06.png)
+
+As we can see, the median has gone down and the extreme values were wiped out in 2012 compared to 1999.
+
+Now lets look at different states if they imrpoved or not. 
+```
+> mn0<- with(pm0, tapply(Sample.Value, State.Code, mean, na.rm= T))
+> mn1<- with(pm1, tapply(Sample.Value, State.Code, mean, na.rm= T))
+> d0<- data.frame(state = names(mn0), mean = mn0)
+> d1<- data.frame(state = names(mn1), mean = mn1)
+> mrg<- merge(d0, d1, by= "state")
+> par(mfrow = c(1,1))
+> with(mrg, plot(rep(1999, 52), mrg[,2], xlim = c(1998, 2013)))
+> with(mrg, points(rep(2012, 52), mrg[,3]))
+> segments(rep(1999, 52), mrg[,2], rep(2012, 52), mrg[,3])
+```
+![text](https://github.com/khaledhasanzami/Data-Analysis-Case-Study-Changes-in-Fine-Particule-Air-Pollution-in-the-U.S./blob/master/Rplot07.png)
+
+As we can see, most of the states ruducesd their pollution level hence some states suffered an increase in it. There is a problem, some data are getting out of the plot for 2012. We can fix this by ylim but we are not concentrating on that now because not a big deal. 
+
+
+
+
+***Thank You ***
